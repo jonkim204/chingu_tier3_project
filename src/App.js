@@ -1,72 +1,62 @@
 import React from 'react';
+import axios from 'axios';
 import './App.css';
-import 'fixed-data-table-2/dist/fixed-data-table.css';
-import { Table, Column, Cell } from 'fixed-data-table-2';
-import getData from './getData';
+import { Row, Col } from "antd";
+import Header from './Components/header';
+import SearchBox from './Components/searchBox';
+import Results from './Components/results';
 
-function App() {
-  const data = getData();
-  return (
-    <div>
-      <header>
-        Meteorite Explorer
-      </header>
-      <div className="search-box">
-        <input type="text" id="search-input"></input>
-        <input type="button" id="search-button" value="SEARCH"></input>
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+        meteorites: [],
+        searchTerm: "",
+        isDataLoaded: false
+    };
+    this.allResults = [];
+  }
+
+  searchResults = searchTerm => {
+    this.setState(() => {
+      const matched = this.allResults.filter(row=> {
+        return row.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1;
+      });
+      return { meteorites: matched };
+    })
+  }
+
+  searchHandler = searchTerm => {
+    this.setState({searchTerm: searchTerm});
+    this.searchResults(searchTerm);
+  }
+
+  componentDidMount() {
+    axios.get("https://data.nasa.gov/resource/gh4g-9sfh.json")
+      .then(res => {
+        this.allResults = res.data;
+        // console.log(this.allResults);
+        this.setState ({
+          meteorites: this.allResults,
+          isDataLoaded: true
+        });
+        // console.log(this.state.meteorites);
+      });
+  }
+  render() {
+    return (
+        <div className = "App">
+            <Header />
+            <SearchBox searchHandler={this.searchHandler} />
+            <div className="table">
+              <Results
+                meteorites={this.state.meteorites}
+                isDataLoaded={this.state.isDataLoaded}
+              />
+            </div>
       </div>
-      <div>
-      <Table
-        rowHeight={50}
-        rowsCount={data.length}
-        headerHeight={50}
-        width={1000}
-        height={500}
-      >
-        <Column
-          columnKey="firstName"
-          header={<Cell>First Name</Cell>}
-          width={130}
-          cell={({ rowIndex, columnKey }) => {
-            return <Cell>{data[rowIndex][columnKey]}</Cell>;
-          }}
-        />
-        <Column
-          columnKey="lastName"
-          header={<Cell>Last Name</Cell>}
-          width={130}
-          cell={({ rowIndex, columnKey }) => {
-            return <Cell>{data[rowIndex][columnKey]}</Cell>;
-          }}
-        />
-        <Column
-          columnKey="email"
-          header={<Cell>Email</Cell>}
-          width={320}
-          cell={({ rowIndex, columnKey }) => {
-            return <Cell>{data[rowIndex][columnKey]}</Cell>;
-          }}
-        />
-        <Column
-          columnKey="city"
-          header={<Cell>City</Cell>}
-          width={180}
-          cell={({ rowIndex, columnKey }) => {
-            return <Cell>{data[rowIndex][columnKey]}</Cell>;
-          }}
-        />
-        <Column
-          columnKey="salary"
-          header={<Cell>Salary</Cell>}
-          width={180}
-          cell={({ rowIndex, columnKey }) => {
-            return <Cell>{data[rowIndex][columnKey]}</Cell>;
-          }}
-        />
-      </Table>
-      </div>
-    </div>
-  );
+    )
+  }
 }
 
 export default App;
