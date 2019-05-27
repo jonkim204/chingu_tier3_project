@@ -1,6 +1,6 @@
-#Meteorite Explorer#
+# Meteorite Explorer
 
-###A solo project completed for the pre-work requirement for a Chingu voyage.###
+### A solo project completed for the pre-work requirement for a Chingu voyage.
 
 A simple App that uses the Nasa meteorite landing API to search for specific meteorites by name.
 
